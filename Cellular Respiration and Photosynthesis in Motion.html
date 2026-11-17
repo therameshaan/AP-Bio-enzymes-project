@@ -1,0 +1,161 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Cellular Respiration and Photosynthesis in Motion</title>
+<style>
+:root{--bg:#eef2f9;--fg:#0f172a;--mut:#475569;--chip:#fff;--bd:#cbd5e1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#070c18;--fg:#e5edf8;--mut:#93a4bf;--chip:#16213a;--bd:#2b3b5c}}
+:root[data-theme=dark]{--bg:#070c18;--fg:#e5edf8;--mut:#93a4bf;--chip:#16213a;--bd:#2b3b5c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding:16px}
+h1{font-size:clamp(20px,3vw,30px);margin:0 0 4px}h2{font-size:17px;margin:0 0 8px}
+.sub,.cap{color:var(--mut)}.cap{min-height:4.4em;margin:8px 2px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+button{font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;border:1px solid var(--bd);background:var(--chip);color:var(--fg);cursor:pointer}
+button.on{background:#2563eb;border-color:#2563eb;color:#fff}
+#chips{display:flex;flex-wrap:wrap;gap:6px}
+input{vertical-align:middle}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.stage{perspective:1000px;background:#0b1220;border-radius:22px;padding:6px;overflow:hidden}
+svg{width:100%;height:auto;display:block}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:14px;font-size:13px}
+.key i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px;box-shadow:inset -2px -2px 3px #0006}
+.t{fill:#e2e8f0;font:600 12px system-ui,sans-serif;text-anchor:middle;paint-order:stroke;stroke:#0b1220;stroke-width:3px;stroke-linejoin:round}
+.m{fill:#a3b1c8;font-size:11px;font-weight:500}.h{font-size:13px;font-weight:700}.b{font-size:16px;font-weight:700}.s{text-anchor:start}.e{text-anchor:end}
+.p{fill:#fff;font:600 10px system-ui,sans-serif;paint-order:stroke;stroke:#0b1220;stroke-width:3px;stroke-linejoin:round}
+</style></head><body>
+<h1>Powering Life, Respiration and Photosynthesis</h1>
+<div class="sub">Both processes loop continuously. Move over a panel to tilt it, or pick a stage to spotlight it.</div>
+<div class="bar"><button id="pp">Pause</button><label>Speed <input id="sp" type="range" min=".25" max="2" step=".25" value="1"></label><span id="chips"></span></div>
+<div class="grid">
+<section><h2>Mitochondrion, cellular respiration</h2><div class="stage"><svg id="A" viewBox="0 0 600 740"></svg></div><div class="cap" id="cA"></div></section>
+<section><h2>Chloroplast, photosynthesis</h2><div class="stage"><svg id="B" viewBox="0 0 600 740"></svg></div><div class="cap" id="cB"></div></section>
+</div>
+<div class="key" id="key"></div>
+<script>
+const NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s);
+const el=(p,t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+const X=(x,y,s,c='')=>`<text x="${x}" y="${y}" class="t ${c}">${s}</text>`;
+const C={atp:'#facc15',adp:'#d97706',nadh:'#3b82f6',nad:'#93c5fd',fadh:'#d946ef',fad:'#f0abfc',co2:'#ef4444',o2:'#22c55e',h2o:'#22d3ee',h:'#fb923c',e:'#f8fafc',c:'#f472b6',pg:'#f9a8d4',rub:'#8b5cf6',coa:'#14b8a6'};
+const A=$('#A'),B=$('#B');
+const defs=`<defs><marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5 0 7z" fill="#cbd5e1"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000" flood-opacity=".6"/></filter><radialGradient id="g1" cx=".4" cy=".3" r=".9"><stop offset="0" stop-color="#3b4a6e"/><stop offset="1" stop-color="#1a2440"/></radialGradient><radialGradient id="g2" cx=".4" cy=".3" r=".9"><stop offset="0" stop-color="#2f6b3f"/><stop offset="1" stop-color="#12301f"/></radialGradient><radialGradient id="sn"><stop offset="0" stop-color="#fff7c2"/><stop offset="1" stop-color="#f59e0b"/></radialGradient><linearGradient id="pr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#94a3b8"/><stop offset="1" stop-color="#475569"/></linearGradient><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#15803d"/></linearGradient></defs>`;
+A.innerHTML=defs+`<rect width="600" height="740" rx="22" fill="#0d1526"/><rect x="10" y="10" width="580" height="175" rx="16" fill="#15203a"/>
+<rect x="20" y="200" width="560" height="540" rx="130" fill="#24304f" stroke="url(#pr)" stroke-width="10" filter="url(#sh)"/>
+<rect x="60" y="240" width="480" height="380" rx="100" fill="url(#g1)" stroke="#cbd5e1" stroke-width="6"/>
+<circle cx="355" cy="425" r="80" fill="#1f2d52" stroke="#475569" stroke-width="3"/>
+<g id="kr"><circle cx="355" cy="425" r="80" fill="none" stroke="#94a3b8" stroke-width="3" stroke-dasharray="10 8"/>${[0,120,240].map(a=>`<path transform="rotate(${a} 355 425)" d="M435 437l-7-12h14z" fill="#e2e8f0"/>`).join('')}</g>
+${[[130,'I'],[200,'II'],[270,'III'],[340,'IV']].map(([x,l])=>`<rect x="${x-22}" y="598" width="44" height="44" rx="12" fill="url(#pr)" stroke="#e2e8f0" stroke-width="1.5"/>${X(x,626,l,'h')}`).join('')}
+<rect x="452" y="606" width="36" height="36" rx="10" fill="url(#pr)" stroke="#e2e8f0" stroke-width="1.5"/><circle cx="470" cy="585" r="22" fill="url(#pr)" stroke="#e2e8f0" stroke-width="1.5"/><g id="ra"><path d="M470 585v-16" stroke="#facc15" stroke-width="5" stroke-linecap="round"/></g>
+${X(28,32,'Glycolysis','b s')}${X(588,30,'Cytoplasm','m e')}${X(210,226,'Mitochondrion','h')}${X(440,224,'Outer membrane','m')}${X(440,259,'Inner membrane','m')}${X(300,280,'Matrix','b')}
+${X(70,314,'Link reaction','h s')}${X(355,421,'Citric acid cycle','h')}${X(355,437,'(Krebs cycle)','m')}${X(235,576,'Electron transport chain','h')}${X(470,553,'ATP synthase','h')}
+${X(190,712,'Intermembrane space','m')}${X(440,704,'Chemiosmosis','h')}${X(440,722,'Oxidative phosphorylation','m')}`;
+B.innerHTML=`<rect width="600" height="740" rx="22" fill="#0d1526"/><circle cx="48" cy="48" r="24" fill="url(#sn)" filter="url(#sh)"/>${X(82,42,'Sunlight','h s')}
+<rect x="20" y="110" width="560" height="620" rx="150" fill="url(#g2)" stroke="#4d7c0f" stroke-width="10" filter="url(#sh)"/>
+<rect x="60" y="175" width="480" height="150" rx="70" fill="#2f7a45" fill-opacity=".6" stroke="#a3e635" stroke-width="6"/>
+${[[130,'PSII'],[300,'PSI']].map(([x,l])=>`<rect x="${x-23}" y="303" width="46" height="44" rx="12" fill="url(#pg)" stroke="#ecfccb" stroke-width="1.5"/>${[-12,0,12].map(d=>`<circle cx="${x+d}" cy="314" r="3.5" fill="#bef264"/>`).join('')}${X(x,338,l,'h')}${X(x,366,'Photosystem '+(l=='PSII'?'II':'I'),'m')}${X(x,379,'(chlorophyll)','m')}`).join('')}
+<rect x="197" y="307" width="36" height="36" rx="10" fill="url(#pr)" stroke="#e2e8f0" stroke-width="1.5"/>${X(215,366,'H⁺ pump','m')}
+<rect x="452" y="308" width="36" height="30" rx="10" fill="url(#pr)" stroke="#e2e8f0" stroke-width="1.5"/><circle cx="470" cy="352" r="22" fill="url(#pr)" stroke="#e2e8f0" stroke-width="1.5"/><g id="rb"><path d="M470 352v16" stroke="#facc15" stroke-width="5" stroke-linecap="round"/></g>
+${X(300,140,'Chloroplast','b')}${X(300,167,'Thylakoid membrane','m')}${X(300,203,'Thylakoid lumen','m')}${X(75,232,'Photolysis','h s')}${X(415,250,'H⁺ build up in the lumen','m')}${X(520,368,'Stroma','h')}
+${X(470,396,'ATP synthase','h')}${X(470,412,'ADP + Pi → ATP','m')}${X(470,428,'Photophosphorylation','m')}
+<circle cx="300" cy="572" r="95" fill="#143826" stroke="#365f45" stroke-width="3"/><g id="kb"><circle cx="300" cy="572" r="95" fill="none" stroke="#94a3b8" stroke-width="3" stroke-dasharray="10 8"/></g>
+${X(300,568,'Calvin cycle','h')}${X(300,585,'(in the stroma)','m')}${X(168,520,'RuBisCO','h')}${X(300,694,'5 of 6 G3P regenerate RuBP','m')}${X(555,664,'1 G3P exits as sugar','m e')}`;
+for(const S of[A,B]){S.L=el(S,'g',{});S.P=el(S,'g',{})}
+const fl=[],hd=[],arc=(cx,cy,r,a,b,n=14)=>Array.from({length:n+1},(_,i)=>{const t=(a+(b-a)*i/n)*Math.PI/180;return[cx+r*Math.cos(t),cy+r*Math.sin(t)]});
+function F(S,st,p,c,l,D,o,w=[0,1],s=.5,r=10){
+ c=[].concat(c);l=[].concat(l);
+ const ln=el(S.L,'polyline',{points:p.map(a=>a.join(',')).join(' '),fill:'none',stroke:c[0],'stroke-opacity':.45,'stroke-width':r<6?3:1.6,'stroke-dasharray':'4 5','marker-end':'url(#ah)'});
+ const g=el(S.P,'g',{}),ci=el(g,'circle',{r,stroke:'#0b1220','stroke-width':1});
+ el(g,'circle',{r:r*.35,cx:-r*.35,cy:-r*.35,fill:'#fff','fill-opacity':.55});
+ const tx=el(g,'text',{x:r+3,y:3.5,class:'p'}),cu=[0];
+ for(let i=1;i<p.length;i++)cu[i]=cu[i-1]+Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);
+ fl.push({g,ln,ci,tx,st,p,c,l,D,o,w,s,cu,L:cu[cu.length-1],k:-1});
+}
+const pos=(f,q)=>{const d=q*f.L;let i=0;while(i<f.p.length-2&&d>f.cu[i+1])i++;const a=f.p[i],b=f.p[i+1],u=(d-f.cu[i])/((f.cu[i+1]-f.cu[i])||1);return[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u]};
+const K=[355,425,80],P=a=>arc(...K,a,a,1)[0],cc=[300,572,95],Q=a=>arc(...cc,a,a,1)[0];
+// glycolysis
+F(A,'g',[[40,105],[120,105]],C.c,'Glucose',6,0,[0,.35],.5,13);
+F(A,'g',[[120,105],[225,70]],C.c,'Pyruvate',6,0,[.35,.85]);
+F(A,'g',[[120,105],[225,140]],C.c,'Pyruvate',6,0,[.35,.85]);
+F(A,'g',[[80,62],[120,98],[175,62]],[C.atp,C.adp],['2 ATP','2 ADP'],6,0,[0,.5]);
+F(A,'g',[[170,176],[230,170],[300,176]],[C.adp,C.atp],['4 ADP','4 ATP'],6,0,[.4,.95]);
+F(A,'g',[[35,172],[85,150],[125,175]],[C.nad,C.nadh],['2 NAD⁺','2 NADH'],6,0,[.3,.9]);
+// link reaction
+F(A,'l',[[225,140],[195,225],[150,330]],C.c,'Pyruvate',7,0,[0,.5]);
+F(A,'l',[[225,70],[195,225],[150,330]],C.c,'Pyruvate',7,.5,[0,.5]);
+F(A,'l',[[62,405],[148,338]],C.coa,'coenzyme A',7,0,[.25,.5]);
+F(A,'l',[[150,330],[215,385],[272,415]],C.coa,'acetyl CoA',7,0,[.5,1]);
+F(A,'l',[[150,330],[108,215],[75,120]],C.co2,'CO₂',7,0,[.5,1]);
+F(A,'l',[[150,335],[132,470],[128,590]],C.nadh,'NADH',7,0,[.5,1]);
+// citric acid cycle
+F(A,'k',arc(...K,90,175,6),C.pg,'oxaloacetate',8,0,[0,.2]);
+F(A,'k',arc(...K,185,440,16),C.pg,'citrate',8,0,[.2,.9]);
+F(A,'k',[P(300),[440,300],[510,215],[535,110]],C.co2,'CO₂',8,0,[.35,.8]);
+F(A,'k',[P(20),[490,380],[520,260],[545,130]],C.co2,'CO₂',8,.2,[.35,.8]);
+F(A,'k',[[500,330],P(335),[330,520],[135,592]],[C.nad,C.nadh],['NAD⁺','NADH'],8,0,[0,1],.2);
+F(A,'k',[[470,520],P(60),[290,550],[140,595]],[C.nad,C.nadh],['NAD⁺','NADH'],8,.4,[0,1],.22);
+F(A,'k',[[345,560],P(120),[210,594]],[C.fad,C.fadh],['FAD','FADH₂'],8,.7,[0,1],.33);
+F(A,'k',[[490,500],P(45),[500,430]],[C.adp,C.atp],['ADP','ATP'],8,.3,[0,1]);
+// electron transport chain
+for(const o of[0,.33,.66])F(A,'e',[[130,606],[200,606],[270,606],[340,606]],C.e,'e⁻',5,o,[0,1],.5,6);
+F(A,'e',[[200,606],[270,606],[340,606]],C.e,'e⁻',5,.5,[0,1],.5,6);
+for(const[x,o]of[[130,0],[270,.3],[340,.6]])F(A,'e',[[x,580],[x,675]],C.h,'H⁺',5,o,[0,.7]);
+F(A,'e',[[415,565],[345,588],[290,545]],[C.o2,C.h2o],['O₂','H₂O'],5,.2);
+F(A,'e',[[385,545],[348,590]],C.h,'H⁺',5,.2,[0,.5]);
+F(A,'e',[[135,592],[170,520],[245,470]],C.nad,'NAD⁺',5,0,[.3,1]);
+// chemiosmosis
+for(const o of[0,.33,.66])F(A,'c',[[470,690],[470,640],[470,600]],C.h,'H⁺',4,o);
+F(A,'c',[[510,560],[486,578],[515,520]],[C.adp,C.atp],['ADP + Pi','ATP'],4,0);
+// light reactions
+for(const o of[0,.5])F(B,'r',[[62,70],[128,298]],'#fde047','',6,o,[0,1],.5,5);
+for(const o of[.25,.75])F(B,'r',[[75,66],[298,298]],'#fde047','',6,o,[0,1],.5,5);
+F(B,'r',[[78,252],[118,280]],C.h2o,'H₂O',6,0,[0,.3]);
+F(B,'r',[[118,280],[92,200],[70,118]],C.o2,'O₂',6,0,[.3,1]);
+F(B,'r',[[118,280],[130,304]],C.e,'e⁻',6,0,[.3,.55],.5,6);
+F(B,'r',[[118,280],[160,258]],C.h,'H⁺',6,0,[.3,.7]);
+for(const o of[0,.5]){F(B,'r',[[135,302],[215,288],[295,302]],C.e,'e⁻',4,o,[0,1],.5,6);F(B,'r',[[305,302],[375,298],[380,336]],C.e,'e⁻',4,o+.25,[0,1],.5,6);F(B,'r',[[215,372],[215,296]],C.h,'H⁺',6,o,[0,.7]);F(B,'r',[[470,290],[470,330],[470,385]],C.h,'H⁺',4,o)}
+F(B,'r',[[440,390],[384,348],[420,440],[392,540]],[C.nad,C.nadh],['NADP⁺','NADPH'],6,.1,[0,1],.25);
+F(B,'r',[[548,388],[490,372],[520,445],[420,520]],[C.adp,C.atp],['ADP','ATP'],6,.4,[0,1],.2);
+// Calvin cycle
+F(B,'v',arc(...cc,150,235,6),C.rub,'RuBP',9,0,[0,.3]);
+F(B,'v',[[130,440],Q(235)],C.co2,'CO₂',9,0,[0,.3]);
+F(B,'v',arc(...cc,235,325,6),C.pg,'3-PGA',9,0,[.3,.55]);
+F(B,'v',arc(...cc,325,400,6),C.c,'G3P',9,0,[.55,.7]);
+F(B,'v',arc(...cc,40,150,8),C.c,'G3P',9,0,[.7,1]);
+F(B,'v',[Q(40),[440,640],[520,640]],C.c,'G3P',9,0,[.55,.9]);
+F(B,'v',[[520,452],Q(318),[520,480]],[C.atp,C.adp],['ATP','ADP'],9,0,[.2,.6]);
+F(B,'v',[[520,545],Q(340),[520,575]],[C.nadh,C.nad],['NADPH','NADP⁺'],9,0,[.2,.6]);
+// proton clouds
+function dots(S,x0,x1,y0,y1,n){for(let i=0;i<n;i++)hd.push([el(S.P,'circle',{r:5.5,fill:C.h,stroke:'#7c2d12','stroke-width':1}),x0+Math.random()*(x1-x0),y0+Math.random()*(y1-y0),Math.random()*6])}
+dots(A,95,520,652,686,34);dots(B,120,500,236,290,34);
+// controls
+const stg={g:'Glycolysis',l:'Link reaction',k:'Citric acid cycle',e:'Electron transport',c:'Chemiosmosis',r:'Light reactions',v:'Calvin cycle'};
+const cap={g:'Glycolysis in the cytoplasm splits one glucose into two pyruvate. It spends 2 ATP, makes 4 ATP and turns 2 NAD⁺ into 2 NADH.',l:'Link reaction. Pyruvate enters the matrix, releases CO₂ and joins coenzyme A to form acetyl CoA.',k:'Citric acid cycle. Acetyl CoA joins oxaloacetate to make citrate. Each turn releases CO₂ and yields NADH, FADH₂ and ATP.',e:'Electron transport chain. Electrons from NADH and FADH₂ move along the chain while H⁺ is pumped into the intermembrane space. At the end O₂ combines with electrons and H⁺ to form H₂O.',c:'Chemiosmosis. H⁺ flows back through ATP synthase, which spins and turns ADP + Pi into ATP (oxidative phosphorylation).',r:'Light reactions. Sunlight excites chlorophyll in PSII and PSI. Photolysis splits H₂O into O₂, e⁻ and H⁺. Electrons reduce NADP⁺ to NADPH, and H⁺ flowing through ATP synthase makes ATP (photophosphorylation).',v:'Calvin cycle. RuBisCO joins CO₂ to RuBP to make 3-PGA. ATP and NADPH convert 3-PGA to G3P. Five of every six G3P regenerate RuBP and one exits as sugar.'};
+const d0='Watch the full process loop, or pick a stage to spotlight it.';
+let T=0,run=1,sp=1,last=0,foc='';
+const side=k=>'rv'.includes(k)?'B':'A';
+function setFocus(k){foc=k;document.querySelectorAll('#chips button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+ for(const f of fl){f.ln.style.opacity=foc&&foc!==f.st?.08:1}
+ $('#cA').textContent=k&&side(k)=='A'?cap[k]:d0;$('#cB').textContent=k&&side(k)=='B'?cap[k]:d0}
+for(const[k,v]of[['','All stages'],...Object.entries(stg)]){const b=document.createElement('button');b.textContent=v;b.dataset.k=k;b.onclick=()=>setFocus(foc===k?'':k);$('#chips').appendChild(b)}
+setFocus('');
+$('#pp').onclick=e=>{run=!run;e.target.textContent=run?'Pause':'Play'};
+$('#sp').oninput=e=>sp=+e.target.value;
+$('#key').innerHTML=[['ATP','atp'],['ADP + Pi','adp'],['NADH, NADPH','nadh'],['NAD⁺, NADP⁺','nad'],['FADH₂','fadh'],['FAD','fad'],['CO₂','co2'],['O₂','o2'],['H₂O','h2o'],['H⁺ (protons)','h'],['e⁻ (electrons)','e'],['Glucose, pyruvate, G3P','c'],['3-PGA, citrate','pg'],['RuBP','rub'],['acetyl CoA, coenzyme A','coa']].map(([n,k])=>`<span><i style="background:${C[k]}"></i>${n}</span>`).join('');
+const tl=[null,null],svgs=[A,B];
+document.querySelectorAll('.stage').forEach((s,i)=>{s.onpointermove=e=>{const r=s.getBoundingClientRect();tl[i]=[(e.clientY-r.top)/r.height-.5,(e.clientX-r.left)/r.width-.5]};s.onpointerleave=()=>tl[i]=null});
+const rot=(id,a,x,y)=>$(id).setAttribute('transform',`rotate(${a} ${x} ${y})`);
+function loop(t){
+ const dt=Math.min(.05,(t-last)/1e3);last=t;if(run)T+=dt*sp;
+ for(const f of fl){
+  const p=(T/f.D+f.o)%1,[a,b]=f.w;
+  if(p<a||p>b){f.g.style.display='none';continue}
+  const q=(p-a)/(b-a),[x,y]=pos(f,q),k=q>f.s?1:0;
+  f.g.style.display='';f.g.setAttribute('transform',`translate(${x} ${y})`);
+  f.g.style.opacity=Math.min(1,q*6,(1-q)*6)*(foc&&foc!==f.st?.1:1);
+  if(k!==f.k){f.k=k;f.ci.setAttribute('fill',f.c[k]||f.c[0]);f.tx.textContent=f.l[k]??f.l[0]}
+ }
+ for(const[g,x,y,s]of hd){g.setAttribute('cx',x+5*Math.sin(T*1.7+s));g.setAttribute('cy',y+4*Math.cos(T*1.3+s))}
+ rot('#kr',T*30,355,425);rot('#kb',-T*30,300,572);rot('#ra',T*260,470,585);rot('#rb',T*260,470,352);
+ svgs.forEach((s,i)=>{const v=tl[i];s.style.transform=`rotateX(${v?-v[0]*14:3*Math.sin(T*.35+i)}deg) rotateY(${v?v[1]*18:5*Math.sin(T*.3+i*2)}deg)`});
+ requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+</script></body></html>
